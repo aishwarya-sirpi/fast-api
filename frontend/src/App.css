@@ -58,6 +58,28 @@ button {
   flex: 1;
 }
 
+.task-filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.task-filters input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #dfe2eb;
+  border-radius: 10px;
+}
+
+.task-filters select {
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #dfe2eb;
+  border-radius: 10px;
+  background: #fff;
+}
+
 input:focus,
 select:focus {
   border-color: #635bff;
@@ -143,6 +165,14 @@ button:disabled {
   flex: 1;
 }
 
+.edit-priority {
+  min-width: 100px;
+  padding: 10px 12px;
+  border: 1px solid #dfe2eb;
+  border-radius: 9px;
+  background: #fff;
+}
+
 .edit-btn,
 .retry-btn {
   color: #5148e5;
@@ -198,6 +228,18 @@ button:disabled {
 
   .task-form input {
     flex-basis: 100%;
+  }
+
+  .task-filters {
+    flex-wrap: wrap;
+  }
+
+  .task-filters input {
+    flex-basis: 100%;
+  }
+
+  .task-filters select {
+    flex: 1;
   }
 
   .task-item {

@@ -44,7 +44,11 @@ function App() {
   const [deletingId, setDeletingId] = useState(null)
   const [editingId, setEditingId] = useState(null)
   const [editTitle, setEditTitle] = useState('')
+  const [editPriority, setEditPriority] = useState('Medium')
   const [error, setError] = useState('')
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [priorityFilter, setPriorityFilter] = useState('all')
 
   const loadTasks = useCallback(async () => {
     setLoading(true)
@@ -159,8 +163,17 @@ function App() {
       setError('Task title cannot be empty.')
       return
     }
-    updateTask(id, { title: trimmedTitle })
+    updateTask(id, { title: trimmedTitle, priority: editPriority })
   }
+
+  const filteredTasks = tasks.filter((task) => {
+    const matchesSearch = task.title.toLowerCase().includes(search.trim().toLowerCase())
+    const matchesStatus =
+      statusFilter === 'all' ||
+      (statusFilter === 'completed' ? task.completed : !task.completed)
+    const matchesPriority = priorityFilter === 'all' || task.priority === priorityFilter
+    return matchesSearch && matchesStatus && matchesPriority
+  })
 
   return (
     <main className="container">
@@ -204,13 +217,47 @@ function App() {
         </div>
       )}
 
+      <section className="task-filters" aria-label="Search and filter tasks">
+        <label className="sr-only" htmlFor="task-search">Search tasks</label>
+        <input
+          id="task-search"
+          type="search"
+          placeholder="Search tasks..."
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
+        <label className="sr-only" htmlFor="status-filter">Filter by status</label>
+        <select
+          id="status-filter"
+          value={statusFilter}
+          onChange={(event) => setStatusFilter(event.target.value)}
+        >
+          <option value="all">All statuses</option>
+          <option value="active">Active</option>
+          <option value="completed">Completed</option>
+        </select>
+        <label className="sr-only" htmlFor="priority-filter">Filter by priority</label>
+        <select
+          id="priority-filter"
+          value={priorityFilter}
+          onChange={(event) => setPriorityFilter(event.target.value)}
+        >
+          <option value="all">All priorities</option>
+          <option value="Low">Low priority</option>
+          <option value="Medium">Medium priority</option>
+          <option value="High">High priority</option>
+        </select>
+      </section>
+
       {loading ? (
         <p className="message" role="status">Loading tasks...</p>
       ) : tasks.length === 0 && !error ? (
         <p className="message">No tasks yet. Add your first task!</p>
+      ) : tasks.length === 0 ? null : filteredTasks.length === 0 ? (
+        <p className="message">No tasks match your search or filters.</p>
       ) : (
         <ul className="task-list">
-          {tasks.map((task) => {
+          {filteredTasks.map((task) => {
             const isBusy = savingId === task.id || deletingId === task.id
 
             return (
@@ -241,6 +288,20 @@ function App() {
                       }}
                       autoFocus
                     />
+                    <label className="sr-only" htmlFor={`edit-priority-${task.id}`}>
+                      Edit task priority
+                    </label>
+                    <select
+                      id={`edit-priority-${task.id}`}
+                      className="edit-priority"
+                      value={editPriority}
+                      onChange={(event) => setEditPriority(event.target.value)}
+                      disabled={isBusy}
+                    >
+                      <option value="Low">Low</option>
+                      <option value="Medium">Medium</option>
+                      <option value="High">High</option>
+                    </select>
                     <button
                       className="edit-btn"
                       type="button"
@@ -272,6 +333,7 @@ function App() {
                       onClick={() => {
                         setEditingId(task.id)
                         setEditTitle(task.title)
+                        setEditPriority(task.priority)
                         setError('')
                       }}
                       disabled={isBusy}
